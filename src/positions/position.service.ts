@@ -34,10 +34,10 @@ export class PositionService {
     }
 
     async findPositionById(id: string): Promise<GetPositionResponse> {
-        const position =  this.positionRepository.findOne({
-        where: { id },
-        relations: ['parent', 'children'],
-        });
+        const position =  await this.positionRepository.findOne({
+            where: { id },
+            relations: ['parent', 'children'],
+            });
 
         if (!position) {
             throw new NotFoundException('position not found');

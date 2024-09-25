@@ -6,7 +6,7 @@ export interface CUDPositionResponse {
 }
 
 export interface GetPositionResponse {
-    position: Promise<Position>;
+    position: Position;
 }
 
 export interface GetPositionsResponse {
