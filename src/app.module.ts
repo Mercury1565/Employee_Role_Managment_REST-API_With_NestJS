@@ -5,27 +5,32 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { PhotoEntity } from './entities/photo.entity';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Position } from './entities/position.entity';
+import { PositionModule } from './positions/position.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'root',
-      database: 'orga_structure',
-      entities: [UserEntity, PhotoEntity],
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true, 
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DATABASE_URL'),
+        entities: [Position],
+        synchronize: true, 
+      }),
+    }),
+    PositionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {
-console.log(dataSource.toString())
-
   }
 
 }
