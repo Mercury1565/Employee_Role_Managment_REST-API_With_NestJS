@@ -17,10 +17,14 @@ export class PositionService {
         const position = this.positionRepository.create(createPositionDto);
 
         if (createPositionDto.parentId) {
-            const parentPosition = await this.positionRepository.findOne({ where: { id: createPositionDto.parentId } });
+            const parentPosition = await this.positionRepository.findOne({ 
+                where: { id: createPositionDto.parentId } 
+            });
+
             if (!parentPosition) {
-                throw new BadRequestException('Parent position not found');
+                throw new BadRequestException('parent position not found');
             }
+
             position.parent = parentPosition;
         }
 
@@ -29,7 +33,9 @@ export class PositionService {
     }
 
     async findAllPositions(): Promise<GetPositionsResponse> {
-        const positions = await this.positionRepository.find({ relations: ['parent', 'children'] });
+        const positions = await this.positionRepository.find({ 
+            relations: ['parent', 'children'] 
+        });
         return {positions: positions}
     }
 
@@ -63,12 +69,12 @@ export class PositionService {
         const position = await this.positionRepository.findOne({
             where: { id },
             relations: ['parent', 'children'],
-            });
+        });
 
         const parentPosition = await this.positionRepository.findOne({
             where: { id: updatePositionDto.parentId },
             relations: ['parent', 'children'],
-            });
+        });
 
         if (!position) {
             throw new NotFoundException('position not found');
