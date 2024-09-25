@@ -110,10 +110,10 @@ export class PositionService {
             throw new Error('position not found');
         }
     
-        // if position has children, reassign them to the grandparent
         if (positionToDelete.children.length > 0) {
             const grandParent = positionToDelete.parent;
     
+            // if grandparent exists, reassign children to the grandparent. Or else assign null
             if (grandParent) {
                 for (const child of positionToDelete.children) {
                     child.parent = grandParent; 
