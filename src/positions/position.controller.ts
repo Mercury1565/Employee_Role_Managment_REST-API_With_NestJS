@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common'
 import { PositionService } from './position.service';
 import { CreatePositionDto } from './dtos/create_position.dto';
 import { UpdatePositionDto } from './dtos/update_position.dto';
-import { CUDPositionResponse, GetPositionResponse, GetPositionsResponse, ChildrenResponse } from 'src/entities/response.entity';
 import { Position } from 'src/entities/position.entity';
 
 @Controller('positions')

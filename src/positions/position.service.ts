@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, BadRequestException  } from '@nestjs/com
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Position } from '../entities/position.entity';
-// import { CUDPositionResponse, GetPositionResponse, GetPositionsResponse, ChildrenResponse } from 'src/entities/response.entity';
 import { CreatePositionDto } from './dtos/create_position.dto';
 import { UpdatePositionDto } from './dtos/update_position.dto';
 
