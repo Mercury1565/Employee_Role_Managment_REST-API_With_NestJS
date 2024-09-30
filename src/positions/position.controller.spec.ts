@@ -3,7 +3,6 @@ import { PositionController } from './position.controller';
 import { PositionService } from './position.service';
 import { CreatePositionDto } from './dtos/create_position.dto';
 import { UpdatePositionDto } from './dtos/update_position.dto';
-import { CUDPositionResponse, GetPositionResponse, GetPositionsResponse, ChildrenResponse } from '../entities/response.entity';
 import { Position } from 'src/entities/position.entity';
 
 describe('PositionController', () => {
@@ -18,6 +17,7 @@ describe('PositionController', () => {
           provide: PositionService,
           useValue: {
             createPosition: jest.fn(),
+            findPositionTree: jest.fn(),
             findAllPositions: jest.fn(),
             findPositionById: jest.fn(),
             findPositionChildrenById: jest.fn(),
@@ -43,11 +43,12 @@ describe('PositionController', () => {
             id: "test_id",
             name: 'Manager',
             description: 'Manager Descripiton',
-            parent: null, 
+            parentId: null, 
+            parent: null,
             children: []
         }   
 
-        const result: CUDPositionResponse = { message: 'position created successfully', position: newPosition };
+        const result = newPosition;
         jest.spyOn(positionService, 'createPosition').mockResolvedValue(result);
 
         expect(await positionController.create(createPositionDto)).toBe(result);
@@ -55,9 +56,50 @@ describe('PositionController', () => {
     });
   });
 
+  describe('getEntirePositionHierarchy', () => {
+    it('should return the entire position hierarchy', async () => {
+      const result: Position[] = [
+        {
+          id: "1",
+          name: 'Manager',
+          description: 'Manager Description',
+          parentId: null,
+          parent: null,
+          children: []
+        }
+      ];
+  
+      jest.spyOn(positionService, 'findPositionTree').mockResolvedValue(result);
+  
+      expect(await positionController.getEntirePositionHierarchy()).toBe(result);
+      expect(positionService.findPositionTree).toHaveBeenCalledWith(null);
+    });
+  });
+  
+  describe('getPositionHierarchy', () => {
+    it('should return the position hierarchy for a given id', async () => {
+      const id = '1';
+      const result: Position[] = [
+        {
+          id,
+          name: 'Manager',
+          description: 'Manager Description',
+          parentId: null,
+          parent: null,
+          children: []
+        }
+      ];
+  
+      jest.spyOn(positionService, 'findPositionTree').mockResolvedValue(result);
+  
+      expect(await positionController.getPositionHierarchy(id)).toBe(result);
+      expect(positionService.findPositionTree).toHaveBeenCalledWith(id);
+    });
+  });
+
   describe('findAllPositions', () => {
     it('should return all positions', async () => {
-      const result: GetPositionsResponse = { positions: [] };
+      const result = [];
       jest.spyOn(positionService, 'findAllPositions').mockResolvedValue(result);
 
       expect(await positionController.findAllPositions()).toBe(result);
@@ -67,14 +109,14 @@ describe('PositionController', () => {
   describe('findPositionById', () => {
     it('should return a position by id', async () => {
       const id = '1'; 
-      const result: GetPositionResponse = { position: 
-        { 
+      const result: Position = { 
             id, 
             name: 'Manager', 
             description: 'Test Description',
+            parentId: null,
             children: [],
             parent: null 
-        }};
+        };
 
       jest.spyOn(positionService, 'findPositionById').mockResolvedValue(result);
 
@@ -86,7 +128,7 @@ describe('PositionController', () => {
   describe('findPositionChildrenById', () => {
     it('should return children of a position by id', async () => {
       const id = '1';
-      const result: ChildrenResponse = { children: [] };
+      const result = [];
 
       jest.spyOn(positionService, 'findPositionChildrenById').mockResolvedValue(result);
 
@@ -106,11 +148,12 @@ describe('PositionController', () => {
             id: "test_id",
             name: 'Manager',
             description: 'Manager Descripiton',
+            parentId: null,
             parent: null, 
             children: []
         }   
 
-        const result: CUDPositionResponse = { message: 'position updated successfully', position: updatedPosition };
+        const result = updatedPosition;
         jest.spyOn(positionService, 'updatePosition').mockResolvedValue(result);
 
         expect(await positionController.updatePosition(id, updatePositionDto)).toBe(result);
@@ -125,11 +168,12 @@ describe('PositionController', () => {
             id: "test_id",
             name: 'Manager',
             description: 'Manager Descripiton',
+            parentId: null,
             parent: null, 
             children: []
         }   
 
-        const result: CUDPositionResponse = { message: 'position deleted successfully', position: deletedPosition };
+        const result = deletedPosition;
         jest.spyOn(positionService, 'removePosition').mockResolvedValue(result);
 
         expect(await positionController.removePosition(id)).toBe(result);

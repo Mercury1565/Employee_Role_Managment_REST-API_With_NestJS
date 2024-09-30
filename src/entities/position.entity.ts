@@ -1,4 +1,3 @@
-// positions/position.entity.ts
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity()
