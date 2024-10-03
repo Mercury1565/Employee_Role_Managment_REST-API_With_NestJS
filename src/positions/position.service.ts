@@ -12,7 +12,7 @@ export class PositionService {
         private readonly positionRepository: Repository<Position>,
     ) {}
 
-    async createPositions(positions: any[], parentId: string = null): Promise<void> {
+    async seedPositions(positions: any[], parentId: string = null): Promise<void> {
         for (const position of positions) {
             const newPosition = this.positionRepository.create({
                 name: position.name,
@@ -22,7 +22,7 @@ export class PositionService {
             await this.positionRepository.save(newPosition);
 
             if (position.children) {
-                await this.createPositions(position.children, newPosition.id);
+                await this.seedPositions(position.children, newPosition.id);
             }
         }
     }
@@ -97,23 +97,29 @@ export class PositionService {
         return positionToDelete;
     }
 
-    async findPositionTree(id: string = null): Promise<Position[]> {
-        // the base case is when 'childrenPositions' is empty
-        const childrenPositions = await this.positionRepository.find({
-            where: id ? { parentId: id } : { parentId: IsNull() },
+    async getHierarchy() {
+        const allPositions = await this.positionRepository.find();
+        const headPosition = await this.positionRepository.findOne({
+            where: {parentId: IsNull()}
+        })
+        
+        const positionMap = new Map<string | null, Position[]>();
+        allPositions.forEach(position => {
+            if (!positionMap.has(position.parentId)) {
+                positionMap.set(position.parentId, []);
+            }
+            positionMap.get(position.parentId).push(position);
         });
 
-        // Promise.all() is used here to ensure all async processes complete before returing the final tree
-        const positionTree = await Promise.all(
-            childrenPositions.map(async position => {
-                const children = await this.findPositionTree(position.id);
-                return {
-                    ...position,
-                    children: children
-                };
-            }
-        ));
+        const findPositionTree = (parentId: string) => {
+            const childrenPositions = positionMap.get(parentId) || []
     
-        return positionTree;
+            return childrenPositions.map(position => ({
+                ...position,
+                children: findPositionTree(position.id)
+            }));
+        }
+
+        return findPositionTree(headPosition.id)
     }
 }

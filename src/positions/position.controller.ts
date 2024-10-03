@@ -11,7 +11,7 @@ export class PositionController {
 
   @Post('seed')
     async seedPositions() {
-        await this.positionService.createPositions(seedPositions);
+        await this.positionService.seedPositions(seedPositions);
         return { message: 'positions seeded successfully' };
     }
 
@@ -27,12 +27,7 @@ export class PositionController {
 
   @Get('tree')
   getEntirePositionHierarchy(): Promise<Position[]> {
-    return this.positionService.findPositionTree(null);
-  }
-
-  @Get('tree/:id')
-  getPositionHierarchy(@Param('id') id: string): Promise<Position[]> {
-    return this.positionService.findPositionTree(id);
+    return this.positionService.getHierarchy();
   }
 
   @Get(':id')
